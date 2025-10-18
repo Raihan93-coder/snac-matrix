@@ -4,38 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SNAC Discovery Matrix - Skill Gap Analyzer</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 2rem;
+            overflow: auto;
+        }
+        
+        .container {
+            width: 100%;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            font-size: 1.875rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #d1d5db;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .node {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .connection {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .label {
+            font-size: 0.75rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <h1>SNAC Discovery Matrix - Skill Gap Analyzer</h1>
+        <p class="subtitle">Circular/Radial Layout - Organized by Stakeholder Connections</p>
+        
+        <svg id="matrix" width="1400" height="900"></svg>
+    </div>
 
-    <script type="text/babel">
-        const { useState } = React;
+    <script>
+        const centerX = 700;
+        const centerY = 450;
+        const radius = 420;
 
-        const SNACMatrix = () => {
-          const [hoveredConnection, setHoveredConnection] = useState(null);
-          const [selectedNode, setSelectedNode] = useState(null);
-
-          const stakeholders = [
+        const stakeholders = [
             { id: 'S1', label: 'Job Seekers/Employees' },
             { id: 'S2', label: 'Employers/Organizations/HR' },
             { id: 'S3', label: 'Training Providers' },
             { id: 'S4', label: 'Platform Admins' },
             { id: 'S5', label: 'Government/Policy Makers' },
             { id: 'S6', label: 'Data Providers/Accreditation Bodies' }
-          ];
+        ];
 
-          const needs = [
+        const needs = [
             { id: 'N6.1', label: 'Platform access to validate standards' },
             { id: 'N6.2', label: 'Data to evaluate training quality' },
             { id: 'N6.3', label: 'Partnership for standardized frameworks' },
@@ -55,9 +99,9 @@
             { id: 'N1.3', label: 'Quick gap identification' },
             { id: 'N1.2', label: 'Personalized recommendations' },
             { id: 'N1.1', label: 'Accurate skill assessment' }
-          ];
+        ];
 
-          const alterables = [
+        const alterables = [
             { id: 'A1', label: 'Business Model & Pricing Strategy' },
             { id: 'A2', label: 'Skill Taxonomy Framework' },
             { id: 'A3', label: 'Data Sources & Partnerships' },
@@ -68,9 +112,9 @@
             { id: 'A8', label: 'User Interface & Experience design' },
             { id: 'A9', label: 'Data Analytics & Reporting Capabilities' },
             { id: 'A10', label: 'Integration & API Ecosystem' }
-          ];
+        ];
 
-          const constraints = [
+        const constraints = [
             { id: 'C1', label: 'Data Privacy & Regulatory Compliance' },
             { id: 'C2', label: 'Technical Infrastructure Limitations' },
             { id: 'C3', label: 'Budget & Financial Resources' },
@@ -81,9 +125,9 @@
             { id: 'C8', label: 'Market Competition' },
             { id: 'C9', label: 'Skill Taxonomy Standardization' },
             { id: 'C10', label: 'Network Effects Dependency' }
-          ];
+        ];
 
-          const connections = [
+        const connections = [
             { from: 'S1', to: 'N1.1', type: 'S-N' },
             { from: 'S1', to: 'N1.2', type: 'S-N' },
             { from: 'S1', to: 'N1.3', type: 'S-N' },
@@ -165,340 +209,315 @@
             { from: 'A6', to: 'C10', type: 'A-C' },
             { from: 'A7', to: 'C10', type: 'A-C' },
             { from: 'A10', to: 'C10', type: 'A-C' }
-          ];
+        ];
 
-          const centerX = 700;
-          const centerY = 450;
-          const radius = 420;
-
-          const categoryPositions = {
+        const categoryPositions = {
             S: { angle: -Math.PI / 2, color: '#3b82f6', title: 'Stakeholders' },
             N: { angle: 0, color: '#10b981', title: 'Needs' },
             A: { angle: Math.PI / 2, color: '#f59e0b', title: 'Alterables' },
             C: { angle: Math.PI, color: '#ef4444', title: 'Constraints' }
-          };
+        };
 
-          const getItemPosition = (items, categoryAngle, itemIndex, category) => {
+        const alterableColors = {
+            'A1': '#fef3c7', 'A2': '#fde68a', 'A3': '#fcd34d', 'A4': '#fbbf24',
+            'A5': '#f59e0b', 'A6': '#f97316', 'A7': '#ea580c', 'A8': '#dc2626',
+            'A9': '#b91c1c', 'A10': '#ff0040'
+        };
+
+        const constraintColors = {
+            'C10': '#ff1493', 'C9': '#ff69b4', 'C8': '#ff85c1', 'C7': '#ffa0d0',
+            'C6': '#d8a0e8', 'C5': '#c090e0', 'C4': '#a880d8', 'C3': '#9070d0',
+            'C2': '#7860c8', 'C1': '#8b5cf6'
+        };
+
+        let selectedNode = null;
+        let hoveredConnection = null;
+
+        function getItemPosition(items, categoryAngle, itemIndex, category) {
             const itemCount = items.length;
             let spreadAngle = Math.PI / 4;
-            if (category === 'S') {
-              spreadAngle = Math.PI / 2.5;
-            } else if (category === 'N') {
-              spreadAngle = Math.PI / 2.8;
-            } else if (category === 'A') {
-              spreadAngle = Math.PI / 2.2;
-            } else if (category === 'C') {
-              spreadAngle = Math.PI / 2.3;
-            }
+            if (category === 'S') spreadAngle = Math.PI / 2.5;
+            else if (category === 'N') spreadAngle = Math.PI / 2.8;
+            else if (category === 'A') spreadAngle = Math.PI / 2.2;
+            else if (category === 'C') spreadAngle = Math.PI / 2.3;
+            
             const startAngle = categoryAngle - spreadAngle / 2;
             const angleStep = spreadAngle / (itemCount - 1 || 1);
             const angle = itemCount === 1 ? categoryAngle : startAngle + itemIndex * angleStep;
             
             return {
-              x: centerX + radius * Math.cos(angle),
-              y: centerY + radius * Math.sin(angle)
+                x: centerX + radius * Math.cos(angle),
+                y: centerY + radius * Math.sin(angle)
             };
-          };
+        }
 
-          const getCategoryCenter = (category) => {
+        function getCategoryCenter(category) {
             const pos = categoryPositions[category];
             return {
-              x: centerX + (radius + 120) * Math.cos(pos.angle),
-              y: centerY + (radius + 120) * Math.sin(pos.angle)
+                x: centerX + (radius + 120) * Math.cos(pos.angle),
+                y: centerY + (radius + 120) * Math.sin(pos.angle)
             };
-          };
+        }
 
-          const renderCategory = (items, category) => {
-            const catPos = categoryPositions[category];
-            const center = getCategoryCenter(category);
-            
-            const getNodeColor = (item, category) => {
-              if (category === 'N') {
+        function getNodeColor(item, category) {
+            if (category === 'N') {
                 if (item.id.startsWith('N1')) return '#065f46';
                 if (item.id.startsWith('N2')) return '#6ee7b7';
                 if (item.id.startsWith('N3')) return '#065f46';
                 if (item.id.startsWith('N4')) return '#6ee7b7';
                 if (item.id.startsWith('N5')) return '#065f46';
                 if (item.id.startsWith('N6')) return '#6ee7b7';
-              }
-              return catPos.color;
-            };
+            }
+            return categoryPositions[category].color;
+        }
 
-            const isConnectedToSelected = (itemId) => {
-              if (!selectedNode) return false;
-              return connections.some(conn => 
+        function isConnectedToSelected(itemId) {
+            if (!selectedNode) return false;
+            return connections.some(conn => 
                 (conn.from === selectedNode && conn.to === itemId) ||
                 (conn.to === selectedNode && conn.from === itemId)
-              );
-            };
-            
-            return (
-              <g key={category}>
-                {(category === 'S' || category === 'A') && (
-                  <>
-                    <rect
-                      x={center.x - 100}
-                      y={center.y - 30}
-                      width={200}
-                      height={60}
-                      fill={catPos.color}
-                      rx="10"
-                    />
-                    <text
-                      x={center.x}
-                      y={center.y}
-                      textAnchor="middle"
-                      className="font-bold text-lg fill-white"
-                    >
-                      {catPos.title}
-                    </text>
-                    <text
-                      x={center.x}
-                      y={center.y + 15}
-                      textAnchor="middle"
-                      className="text-sm fill-white font-semibold"
-                    >
-                      ({category})
-                    </text>
-                  </>
-                )}
+            );
+        }
 
-                {items.map((item, idx) => {
-                  const pos = getItemPosition(items, catPos.angle, idx, category);
-                  const nodeColor = getNodeColor(item, category);
-                  const isConnected = isConnectedToSelected(item.id);
-                  const isSelected = selectedNode === item.id;
-                  
-                  let labelX = pos.x;
-                  let labelY = pos.y + 25;
-                  let labelAnchor = "middle";
-                  
-                  if (category === 'S') {
+        function renderConnections(svg) {
+            const allItems = { S: stakeholders, N: needs, A: alterables, C: constraints };
+            
+            connections.forEach(conn => {
+                const fromCategory = conn.from[0];
+                const toCategory = conn.to[0];
+                
+                const fromItems = allItems[fromCategory];
+                const toItems = allItems[toCategory];
+                
+                const fromIdx = fromItems.findIndex(item => item.id === conn.from);
+                const toIdx = toItems.findIndex(item => item.id === conn.to);
+                
+                if (fromIdx === -1 || toIdx === -1) return;
+                
+                const fromPos = getItemPosition(fromItems, categoryPositions[fromCategory].angle, fromIdx, fromCategory);
+                const toPos = getItemPosition(toItems, categoryPositions[toCategory].angle, toIdx, toCategory);
+                
+                let color = categoryPositions[fromCategory].color;
+                if (conn.type === 'N-A') color = alterableColors[conn.to] || color;
+                if (conn.type === 'A-C') color = constraintColors[conn.to] || color;
+                
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', fromPos.x);
+                line.setAttribute('y1', fromPos.y);
+                line.setAttribute('x2', toPos.x);
+                line.setAttribute('y2', toPos.y);
+                line.setAttribute('stroke', color);
+                line.setAttribute('stroke-width', '2.5');
+                line.setAttribute('stroke-opacity', '0.7');
+                line.classList.add('connection');
+                line.dataset.from = conn.from;
+                line.dataset.to = conn.to;
+                
+                line.addEventListener('mouseenter', () => {
+                    hoveredConnection = ${conn.from}-${conn.to};
+                    line.setAttribute('stroke-width', '3.5');
+                    line.setAttribute('stroke-opacity', '1');
+                });
+                
+                line.addEventListener('mouseleave', () => {
+                    hoveredConnection = null;
+                    updateOpacity();
+                });
+                
+                svg.appendChild(line);
+            });
+        }
+
+        function renderCategory(svg, items, category) {
+            const catPos = categoryPositions[category];
+            const center = getCategoryCenter(category);
+            
+            if (category === 'S' || category === 'A') {
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', center.x - 100);
+                rect.setAttribute('y', center.y - 30);
+                rect.setAttribute('width', 200);
+                rect.setAttribute('height', 60);
+                rect.setAttribute('fill', catPos.color);
+                rect.setAttribute('rx', 10);
+                svg.appendChild(rect);
+                
+                const text1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text1.setAttribute('x', center.x);
+                text1.setAttribute('y', center.y);
+                text1.setAttribute('text-anchor', 'middle');
+                text1.setAttribute('fill', 'white');
+                text1.style.fontWeight = 'bold';
+                text1.style.fontSize = '1.125rem';
+                text1.textContent = catPos.title;
+                svg.appendChild(text1);
+                
+                const text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text2.setAttribute('x', center.x);
+                text2.setAttribute('y', center.y + 15);
+                text2.setAttribute('text-anchor', 'middle');
+                text2.setAttribute('fill', 'white');
+                text2.style.fontSize = '0.875rem';
+                text2.style.fontWeight = '600';
+                text2.textContent = (${category});
+                svg.appendChild(text2);
+            }
+            
+            items.forEach((item, idx) => {
+                const pos = getItemPosition(items, catPos.angle, idx, category);
+                const nodeColor = getNodeColor(item, category);
+                
+                let labelX = pos.x;
+                let labelY = pos.y + 25;
+                let labelAnchor = "middle";
+                
+                if (category === 'S') {
                     labelY = pos.y - 15;
-                    labelAnchor = "middle";
-                  } else if (category === 'N') {
+                } else if (category === 'N') {
                     labelX = pos.x + 18;
                     labelY = pos.y + 10;
                     labelAnchor = "start";
-                  } else if (category === 'A') {
-                    if (item.id === 'A1' || item.id === 'A2' || item.id === 'A3' || item.id === 'A4') {
-                      labelX = pos.x + 18;
-                      labelY = pos.y + 10;
-                      labelAnchor = "start";
+                } else if (category === 'A') {
+                    if (['A1', 'A2', 'A3', 'A4'].includes(item.id)) {
+                        labelX = pos.x + 18;
+                        labelY = pos.y + 10;
+                        labelAnchor = "start";
                     } else if (item.id === 'A5') {
-                      labelX = pos.x + 18;
-                      labelY = pos.y + 20;
-                      labelAnchor = "start";
+                        labelX = pos.x + 18;
+                        labelY = pos.y + 20;
+                        labelAnchor = "start";
                     } else if (item.id === 'A6') {
-                      labelX = pos.x - 18;
-                      labelY = pos.y + 20;
-                      labelAnchor = "end";
-                    } else if (item.id === 'A7' || item.id === 'A8' || item.id === 'A9' || item.id === 'A10') {
-                      labelX = pos.x - 18;
-                      labelY = pos.y + 10;
-                      labelAnchor = "end";
+                        labelX = pos.x - 18;
+                        labelY = pos.y + 20;
+                        labelAnchor = "end";
+                    } else {
+                        labelX = pos.x - 18;
+                        labelY = pos.y + 10;
+                        labelAnchor = "end";
                     }
-                  } else if (category === 'C') {
+                } else if (category === 'C') {
                     labelX = pos.x - 18;
                     labelY = pos.y + 10;
                     labelAnchor = "end";
-                  }
-                  
-                  return (
-                    <g key={item.id}>
-                      <circle
-                        cx={pos.x}
-                        cy={pos.y}
-                        r="8"
-                        fill={nodeColor}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedNode(selectedNode === item.id ? null : item.id)}
-                        stroke={isSelected ? '#ffffff' : 'none'}
-                        strokeWidth={isSelected ? '3' : '0'}
-                        opacity={selectedNode ? (isSelected || isConnected ? 1 : 0.3) : 1}
-                      />
-                      <text
-                        x={labelX}
-                        y={labelY}
-                        textAnchor={labelAnchor}
-                        className="text-xs font-bold"
-                        fill="#e5e7eb"
-                        opacity={selectedNode ? (isSelected || isConnected ? 1 : 0.3) : 1}
-                      >
-                        {item.label}
-                      </text>
-                    </g>
-                  );
-                })}
-              </g>
-            );
-          };
-
-          const renderConnections = () => {
-            const allItems = { S: stakeholders, N: needs, A: alterables, C: constraints };
-            
-            const alterableColors = {
-              'A1': '#fef3c7',
-              'A2': '#fde68a',
-              'A3': '#fcd34d',
-              'A4': '#fbbf24',
-              'A5': '#f59e0b',
-              'A6': '#f97316',
-              'A7': '#ea580c',
-              'A8': '#dc2626',
-              'A9': '#b91c1c',
-              'A10': '#ff0040'
-            };
-            
-            const constraintColors = {
-              'C10': '#ff1493',
-              'C9': '#ff69b4',
-              'C8': '#ff85c1',
-              'C7': '#ffa0d0',
-              'C6': '#d8a0e8',
-              'C5': '#c090e0',
-              'C4': '#a880d8',
-              'C3': '#9070d0',
-              'C2': '#7860c8',
-              'C1': '#8b5cf6'
-            };
-            
-            return connections.map((conn, idx) => {
-              const fromCategory = conn.from[0];
-              const toCategory = conn.to[0];
-              
-              const fromItems = allItems[fromCategory];
-              const toItems = allItems[toCategory];
-              
-              const fromIdx = fromItems.findIndex(item => item.id === conn.from);
-              const toIdx = toItems.findIndex(item => item.id === conn.to);
-              
-              if (fromIdx === -1 || toIdx === -1) return null;
-              
-              const fromPos = getItemPosition(fromItems, categoryPositions[fromCategory].angle, fromIdx, fromCategory);
-              const toPos = getItemPosition(toItems, categoryPositions[toCategory].angle, toIdx, toCategory);
-              
-              const isHovered = hoveredConnection === `${conn.from}-${conn.to}`;
-              const isConnectedToSelected = selectedNode && (conn.from === selectedNode || conn.to === selectedNode);
-              
-              let color = categoryPositions[fromCategory].color;
-              
-              if (conn.type === 'N-A') {
-                color = alterableColors[conn.to] || color;
-              }
-              
-              if (conn.type === 'A-C') {
-                color = constraintColors[conn.to] || color;
-              }
-              
-              return (
-                <line
-                  key={idx}
-                  x1={fromPos.x}
-                  y1={fromPos.y}
-                  x2={toPos.x}
-                  y2={toPos.y}
-                  stroke={color}
-                  strokeWidth={isHovered || isConnectedToSelected ? "3.5" : "2.5"}
-                  strokeOpacity={selectedNode ? (isConnectedToSelected ? "1" : "0.2") : (isHovered ? "1" : "0.7")}
-                  onMouseEnter={() => setHoveredConnection(${conn.from}-${conn.to})}
-                  onMouseLeave={() => setHoveredConnection(null)}
-                  className="cursor-pointer transition-all"
-                />
-              );
-            });
-          };
-
-          return (
-            <div className="w-full bg-black p-8 overflow-auto">
-              <h1 className="text-3xl font-bold text-center mb-2 text-white">
-                SNAC Discovery Matrix - Skill Gap Analyzer
-              </h1>
-              <p className="text-center text-gray-300 mb-8">
-                Circular/Radial Layout - Organized by Stakeholder Connections
-              </p>
-
-              <svg width="1400" height="900" className="mx-auto">
-                <circle
-                  cx={centerX}
-                  cy={centerY}
-                  r="80"
-                  fill="#1f2937"
-                  stroke="#6b7280"
-                  strokeWidth="2"
-                />
-                <text
-                  x={centerX}
-                  y={centerY - 10}
-                  textAnchor="middle"
-                  className="font-bold text-xl"
-                  fill="#e5e7eb"
-                >
-                  Skill Gap
-                </text>
-                <text
-                  x={centerX}
-                  y={centerY + 15}
-                  textAnchor="middle"
-                  className="font-bold text-xl"
-                  fill="#e5e7eb"
-                >
-                  Analyzer
-                </text>
-
-                {renderConnections()}
-
-                {renderCategory(stakeholders, 'S')}
-                {renderCategory(needs, 'N')}
-                {renderCategory(alterables, 'A')}
-                {renderCategory(constraints, 'C')}
-
-                <defs>
-                  <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                    <polygon points="0 0, 10 3, 0 6" fill="#9ca3af" />
-                  </marker>
-                </defs>
+                }
                 
-                <path
-                  d={M ${centerX + 150} ${centerY - 80} Q ${centerX + 180} ${centerY - 60} ${centerX + 180} ${centerY - 20}}
-                  stroke="#9ca3af"
-                  strokeWidth="2"
-                  fill="none"
-                  markerEnd="url(#arrowhead)"
-                />
-                <path
-                  d={M ${centerX + 80} ${centerY + 150} Q ${centerX + 60} ${centerY + 180} ${centerX + 20} ${centerY + 180}}
-                  stroke="#9ca3af"
-                  strokeWidth="2"
-                  fill="none"
-                  markerEnd="url(#arrowhead)"
-                />
-                <path
-                  d={M ${centerX - 150} ${centerY + 80} Q ${centerX - 180} ${centerY + 60} ${centerX - 180} ${centerY + 20}}
-                  stroke="#9ca3af"
-                  strokeWidth="2"
-                  fill="none"
-                  markerEnd="url(#arrowhead)"
-                />
-                <path
-                  d={M ${centerX - 80} ${centerY - 150} Q ${centerX - 60} ${centerY - 180} ${centerX - 20} ${centerY - 180}}
-                  stroke="#9ca3af"
-                  strokeWidth="2"
-                  fill="none"
-                  markerEnd="url(#arrowhead)"
-                />
-              </svg>
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', pos.x);
+                circle.setAttribute('cy', pos.y);
+                circle.setAttribute('r', 8);
+                circle.setAttribute('fill', nodeColor);
+                circle.classList.add('node');
+                circle.dataset.id = item.id;
+                
+                circle.addEventListener('click', () => {
+                    selectedNode = selectedNode === item.id ? null : item.id;
+                    updateOpacity();
+                });
+                
+                svg.appendChild(circle);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', labelX);
+                text.setAttribute('y', labelY);
+                text.setAttribute('text-anchor', labelAnchor);
+                text.setAttribute('fill', '#e5e7eb');
+                text.classList.add('label');
+                text.dataset.id = item.id;
+                text.textContent = item.label;
+                svg.appendChild(text);
+            });
+        }
 
-              <div className="text-center text-sm text-gray-400 mt-8">
-                <p>Connections flow: Stakeholders → Needs → Alterables → Constraints</p>
-                <p className="mt-2">Needs nodes organized in reverse: S6 → S5 → S4 → S3 → S2 → S1 (bottom to top)</p>
-                <p className="mt-1">Hover over connection lines to highlight them | Click on any node to highlight all its connections</p>
-              </div>
-            </div>
-          );
-        };
+        function updateOpacity() {
+            document.querySelectorAll('.node, .label').forEach(el => {
+                const id = el.dataset.id;
+                const isConnected = isConnectedToSelected(id);
+                const isSelected = selectedNode === id;
+                
+                if (selectedNode) {
+                    el.style.opacity = (isSelected || isConnected) ? '1' : '0.3';
+                    if (isSelected && el.classList.contains('node')) {
+                        el.setAttribute('stroke', '#ffffff');
+                        el.setAttribute('stroke-width', '3');
+                    } else if (el.classList.contains('node')) {
+                        el.setAttribute('stroke', 'none');
+                        el.setAttribute('stroke-width', '0');
+                    }
+                } else {
+                    el.style.opacity = '1';
+                    if (el.classList.contains('node')) {
+                        el.setAttribute('stroke', 'none');
+                        el.setAttribute('stroke-width', '0');
+                    }
+                }
+            });
+            
+            document.querySelectorAll('.connection').forEach(line => {
+                const from = line.dataset.from;
+                const to = line.dataset.to;
+                const isConnected = selectedNode && (from === selectedNode || to === selectedNode);
+                
+                if (selectedNode) {
+                    line.setAttribute('stroke-opacity', isConnected ? '1' : '0.2');
+                    line.setAttribute('stroke-width', isConnected ? '3.5' : '2.5');
+                } else {
+                    line.setAttribute('stroke-opacity', '0.7');
+                    line.setAttribute('stroke-width', '2.5');
+                }
+            });
+        }
 
-        ReactDOM.render(<SNACMatrix />, document.getElementById('root'));
+        function init() {
+            const svg = document.getElementById('matrix');
+            
+            renderConnections(svg);
+            renderCategory(svg, stakeholders, 'S');
+            renderCategory(svg, needs, 'N');
+            renderCategory(svg, alterables, 'A');
+            renderCategory(svg, constraints, 'C');
+            
+            // Center circle with ring
+            const outerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            outerCircle.setAttribute('cx', centerX);
+            outerCircle.setAttribute('cy', centerY);
+            outerCircle.setAttribute('r', 95);
+            outerCircle.setAttribute('fill', '#4b5563');
+            outerCircle.setAttribute('stroke', '#6b7280');
+            outerCircle.setAttribute('stroke-width', 4);
+            outerCircle.setAttribute('opacity', 0.8);
+            svg.appendChild(outerCircle);
+            
+            const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            innerCircle.setAttribute('cx', centerX);
+            innerCircle.setAttribute('cy', centerY);
+            innerCircle.setAttribute('r', 80);
+            innerCircle.setAttribute('fill', '#1f2937');
+            innerCircle.setAttribute('stroke', '#6b7280');
+            innerCircle.setAttribute('stroke-width', 2);
+            svg.appendChild(innerCircle);
+            
+            const text1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text1.setAttribute('x', centerX);
+            text1.setAttribute('y', centerY - 10);
+            text1.setAttribute('text-anchor', 'middle');
+            text1.setAttribute('fill', '#e5e7eb');
+            text1.style.fontWeight = 'bold';
+            text1.style.fontSize = '1.25rem';
+            text1.textContent = 'Skill Gap';
+            svg.appendChild(text1);
+            
+            const text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text2.setAttribute('x', centerX);
+            text2.setAttribute('y', centerY + 15);
+            text2.setAttribute('text-anchor', 'middle');
+            text2.setAttribute('fill', '#e5e7eb');
+            text2.style.fontWeight = 'bold';
+            text2.style.fontSize = '1.25rem';
+            text2.textContent = 'Analyzer';
+            svg.appendChild(text2);
+        }
+
+        init();
     </script>
 </body>
 </html>
