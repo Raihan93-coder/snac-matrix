@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNAC Discovery Matrix - Skill Gap Analyzer</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const SNACMatrix = () => {
+          const [hoveredConnection, setHoveredConnection] = useState(null);
+          const [selectedNode, setSelectedNode] = useState(null);
+
+          const stakeholders = [
+            { id: 'S1', label: 'Job Seekers/Employees' },
+            { id: 'S2', label: 'Employers/Organizations/HR' },
+            { id: 'S3', label: 'Training Providers' },
+            { id: 'S4', label: 'Platform Admins' },
+            { id: 'S5', label: 'Government/Policy Makers' },
+            { id: 'S6', label: 'Data Providers/Accreditation Bodies' }
+          ];
+
+          const needs = [
+            { id: 'N6.1', label: 'Platform access to validate standards' },
+            { id: 'N6.2', label: 'Data to evaluate training quality' },
+            { id: 'N6.3', label: 'Partnership for standardized frameworks' },
+            { id: 'N5.1', label: 'Workforce statistics and skill gap trends' },
+            { id: 'N5.2', label: 'Insights for skill development programs' },
+            { id: 'N5.3', label: 'Alignment with national missions' },
+            { id: 'N5.4', label: 'Data for future job market policy' },
+            { id: 'N4.1', label: 'System reliability and uptime' },
+            { id: 'N4.2', label: 'User engagement and retention' },
+            { id: 'N4.3', label: 'Data security and privacy compliance' },
+            { id: 'N3.4', label: 'Course module recommendations' },
+            { id: 'N3.3', label: 'Course effectiveness feedback' },
+            { id: 'N3.2', label: 'Emerging skill demands from industry' },
+            { id: 'N2.3', label: 'Tools to identify skill shortages' },
+            { id: 'N2.2', label: 'Workforce visibility' },
+            { id: 'N2.1', label: 'Accurate assessment of candidate competencies' },
+            { id: 'N1.3', label: 'Quick gap identification' },
+            { id: 'N1.2', label: 'Personalized recommendations' },
+            { id: 'N1.1', label: 'Accurate skill assessment' }
+          ];
+
+          const alterables = [
+            { id: 'A1', label: 'Business Model & Pricing Strategy' },
+            { id: 'A2', label: 'Skill Taxonomy Framework' },
+            { id: 'A3', label: 'Data Sources & Partnerships' },
+            { id: 'A4', label: 'Platform Architecture' },
+            { id: 'A5', label: 'Recommendation Algorithm Complexity' },
+            { id: 'A6', label: 'Assessment Methodology' },
+            { id: 'A7', label: 'Geographic & Industry Scope' },
+            { id: 'A8', label: 'User Interface & Experience design' },
+            { id: 'A9', label: 'Data Analytics & Reporting Capabilities' },
+            { id: 'A10', label: 'Integration & API Ecosystem' }
+          ];
+
+          const constraints = [
+            { id: 'C1', label: 'Data Privacy & Regulatory Compliance' },
+            { id: 'C2', label: 'Technical Infrastructure Limitations' },
+            { id: 'C3', label: 'Budget & Financial Resources' },
+            { id: 'C4', label: 'Data Quality & Availability' },
+            { id: 'C5', label: 'Time-to-Market Pressure' },
+            { id: 'C6', label: 'Algorithm Accuracy & Bias' },
+            { id: 'C7', label: 'Stakeholder Adoption Barriers' },
+            { id: 'C8', label: 'Market Competition' },
+            { id: 'C9', label: 'Skill Taxonomy Standardization' },
+            { id: 'C10', label: 'Network Effects Dependency' }
+          ];
+
+          const connections = [
+            { from: 'S1', to: 'N1.1', type: 'S-N' },
+            { from: 'S1', to: 'N1.2', type: 'S-N' },
+            { from: 'S1', to: 'N1.3', type: 'S-N' },
+            { from: 'S2', to: 'N2.1', type: 'S-N' },
+            { from: 'S2', to: 'N2.2', type: 'S-N' },
+            { from: 'S2', to: 'N2.3', type: 'S-N' },
+            { from: 'S3', to: 'N3.2', type: 'S-N' },
+            { from: 'S3', to: 'N3.3', type: 'S-N' },
+            { from: 'S3', to: 'N3.4', type: 'S-N' },
+            { from: 'S4', to: 'N4.1', type: 'S-N' },
+            { from: 'S4', to: 'N4.2', type: 'S-N' },
+            { from: 'S4', to: 'N4.3', type: 'S-N' },
+            { from: 'S5', to: 'N5.1', type: 'S-N' },
+            { from: 'S5', to: 'N5.2', type: 'S-N' },
+            { from: 'S5', to: 'N5.3', type: 'S-N' },
+            { from: 'S5', to: 'N5.4', type: 'S-N' },
+            { from: 'S6', to: 'N6.1', type: 'S-N' },
+            { from: 'S6', to: 'N6.2', type: 'S-N' },
+            { from: 'S6', to: 'N6.3', type: 'S-N' },
+            { from: 'N1.1', to: 'A6', type: 'N-A' },
+            { from: 'N1.1', to: 'A2', type: 'N-A' },
+            { from: 'N1.2', to: 'A5', type: 'N-A' },
+            { from: 'N1.2', to: 'A3', type: 'N-A' },
+            { from: 'N1.3', to: 'A5', type: 'N-A' },
+            { from: 'N1.3', to: 'A10', type: 'N-A' },
+            { from: 'N2.1', to: 'A6', type: 'N-A' },
+            { from: 'N2.1', to: 'A9', type: 'N-A' },
+            { from: 'N2.2', to: 'A7', type: 'N-A' },
+            { from: 'N2.2', to: 'A9', type: 'N-A' },
+            { from: 'N2.3', to: 'A3', type: 'N-A' },
+            { from: 'N3.2', to: 'A9', type: 'N-A' },
+            { from: 'N3.2', to: 'A10', type: 'N-A' },
+            { from: 'N3.3', to: 'A3', type: 'N-A' },
+            { from: 'N3.3', to: 'A7', type: 'N-A' },
+            { from: 'N3.4', to: 'A9', type: 'N-A' },
+            { from: 'N3.4', to: 'A10', type: 'N-A' },
+            { from: 'N4.1', to: 'A4', type: 'N-A' },
+            { from: 'N4.2', to: 'A8', type: 'N-A' },
+            { from: 'N4.2', to: 'A1', type: 'N-A' },
+            { from: 'N4.3', to: 'A4', type: 'N-A' },
+            { from: 'N5.1', to: 'A9', type: 'N-A' },
+            { from: 'N5.1', to: 'A7', type: 'N-A' },
+            { from: 'N6.1', to: 'A2', type: 'N-A' },
+            { from: 'N6.1', to: 'A10', type: 'N-A' },
+            { from: 'A3', to: 'C1', type: 'A-C' },
+            { from: 'A4', to: 'C1', type: 'A-C' },
+            { from: 'A9', to: 'C1', type: 'A-C' },
+            { from: 'A1', to: 'C2', type: 'A-C' },
+            { from: 'A4', to: 'C2', type: 'A-C' },
+            { from: 'A5', to: 'C2', type: 'A-C' },
+            { from: 'A9', to: 'C2', type: 'A-C' },
+            { from: 'A3', to: 'C3', type: 'A-C' },
+            { from: 'A4', to: 'C3', type: 'A-C' },
+            { from: 'A5', to: 'C3', type: 'A-C' },
+            { from: 'A6', to: 'C3', type: 'A-C' },
+            { from: 'A10', to: 'C3', type: 'A-C' },
+            { from: 'A2', to: 'C4', type: 'A-C' },
+            { from: 'A3', to: 'C4', type: 'A-C' },
+            { from: 'A5', to: 'C4', type: 'A-C' },
+            { from: 'A9', to: 'C4', type: 'A-C' },
+            { from: 'A1', to: 'C5', type: 'A-C' },
+            { from: 'A4', to: 'C5', type: 'A-C' },
+            { from: 'A5', to: 'C5', type: 'A-C' },
+            { from: 'A8', to: 'C5', type: 'A-C' },
+            { from: 'A10', to: 'C5', type: 'A-C' },
+            { from: 'A1', to: 'C6', type: 'A-C' },
+            { from: 'A2', to: 'C6', type: 'A-C' },
+            { from: 'A5', to: 'C6', type: 'A-C' },
+            { from: 'A6', to: 'C7', type: 'A-C' },
+            { from: 'A8', to: 'C7', type: 'A-C' },
+            { from: 'A10', to: 'C7', type: 'A-C' },
+            { from: 'A3', to: 'C8', type: 'A-C' },
+            { from: 'A6', to: 'C8', type: 'A-C' },
+            { from: 'A7', to: 'C8', type: 'A-C' },
+            { from: 'A8', to: 'C8', type: 'A-C' },
+            { from: 'A1', to: 'C9', type: 'A-C' },
+            { from: 'A2', to: 'C9', type: 'A-C' },
+            { from: 'A10', to: 'C9', type: 'A-C' },
+            { from: 'A6', to: 'C10', type: 'A-C' },
+            { from: 'A7', to: 'C10', type: 'A-C' },
+            { from: 'A10', to: 'C10', type: 'A-C' }
+          ];
+
+          const centerX = 700;
+          const centerY = 450;
+          const radius = 420;
+
+          const categoryPositions = {
+            S: { angle: -Math.PI / 2, color: '#3b82f6', title: 'Stakeholders' },
+            N: { angle: 0, color: '#10b981', title: 'Needs' },
+            A: { angle: Math.PI / 2, color: '#f59e0b', title: 'Alterables' },
+            C: { angle: Math.PI, color: '#ef4444', title: 'Constraints' }
+          };
+
+          const getItemPosition = (items, categoryAngle, itemIndex, category) => {
+            const itemCount = items.length;
+            let spreadAngle = Math.PI / 4;
+            if (category === 'S') {
+              spreadAngle = Math.PI / 2.5;
+            } else if (category === 'N') {
+              spreadAngle = Math.PI / 2.8;
+            } else if (category === 'A') {
+              spreadAngle = Math.PI / 2.2;
+            } else if (category === 'C') {
+              spreadAngle = Math.PI / 2.3;
+            }
+            const startAngle = categoryAngle - spreadAngle / 2;
+            const angleStep = spreadAngle / (itemCount - 1 || 1);
+            const angle = itemCount === 1 ? categoryAngle : startAngle + itemIndex * angleStep;
+            
+            return {
+              x: centerX + radius * Math.cos(angle),
+              y: centerY + radius * Math.sin(angle)
+            };
+          };
+
+          const getCategoryCenter = (category) => {
+            const pos = categoryPositions[category];
+            return {
+              x: centerX + (radius + 120) * Math.cos(pos.angle),
+              y: centerY + (radius + 120) * Math.sin(pos.angle)
+            };
+          };
+
+          const renderCategory = (items, category) => {
+            const catPos = categoryPositions[category];
+            const center = getCategoryCenter(category);
+            
+            const getNodeColor = (item, category) => {
+              if (category === 'N') {
+                if (item.id.startsWith('N1')) return '#065f46';
+                if (item.id.startsWith('N2')) return '#6ee7b7';
+                if (item.id.startsWith('N3')) return '#065f46';
+                if (item.id.startsWith('N4')) return '#6ee7b7';
+                if (item.id.startsWith('N5')) return '#065f46';
+                if (item.id.startsWith('N6')) return '#6ee7b7';
+              }
+              return catPos.color;
+            };
+
+            const isConnectedToSelected = (itemId) => {
+              if (!selectedNode) return false;
+              return connections.some(conn => 
+                (conn.from === selectedNode && conn.to === itemId) ||
+                (conn.to === selectedNode && conn.from === itemId)
+              );
+            };
+            
+            return (
+              <g key={category}>
+                {(category === 'S' || category === 'A') && (
+                  <>
+                    <rect
+                      x={center.x - 100}
+                      y={center.y - 30}
+                      width={200}
+                      height={60}
+                      fill={catPos.color}
+                      rx="10"
+                    />
+                    <text
+                      x={center.x}
+                      y={center.y}
+                      textAnchor="middle"
+                      className="font-bold text-lg fill-white"
+                    >
+                      {catPos.title}
+                    </text>
+                    <text
+                      x={center.x}
+                      y={center.y + 15}
+                      textAnchor="middle"
+                      className="text-sm fill-white font-semibold"
+                    >
+                      ({category})
+                    </text>
+                  </>
+                )}
+
+                {items.map((item, idx) => {
+                  const pos = getItemPosition(items, catPos.angle, idx, category);
+                  const nodeColor = getNodeColor(item, category);
+                  const isConnected = isConnectedToSelected(item.id);
+                  const isSelected = selectedNode === item.id;
+                  
+                  let labelX = pos.x;
+                  let labelY = pos.y + 25;
+                  let labelAnchor = "middle";
+                  
+                  if (category === 'S') {
+                    labelY = pos.y - 15;
+                    labelAnchor = "middle";
+                  } else if (category === 'N') {
+                    labelX = pos.x + 18;
+                    labelY = pos.y + 10;
+                    labelAnchor = "start";
+                  } else if (category === 'A') {
+                    if (item.id === 'A1' || item.id === 'A2' || item.id === 'A3' || item.id === 'A4') {
+                      labelX = pos.x + 18;
+                      labelY = pos.y + 10;
+                      labelAnchor = "start";
+                    } else if (item.id === 'A5') {
+                      labelX = pos.x + 18;
+                      labelY = pos.y + 20;
+                      labelAnchor = "start";
+                    } else if (item.id === 'A6') {
+                      labelX = pos.x - 18;
+                      labelY = pos.y + 20;
+                      labelAnchor = "end";
+                    } else if (item.id === 'A7' || item.id === 'A8' || item.id === 'A9' || item.id === 'A10') {
+                      labelX = pos.x - 18;
+                      labelY = pos.y + 10;
+                      labelAnchor = "end";
+                    }
+                  } else if (category === 'C') {
+                    labelX = pos.x - 18;
+                    labelY = pos.y + 10;
+                    labelAnchor = "end";
+                  }
+                  
+                  return (
+                    <g key={item.id}>
+                      <circle
+                        cx={pos.x}
+                        cy={pos.y}
+                        r="8"
+                        fill={nodeColor}
+                        className="cursor-pointer"
+                        onClick={() => setSelectedNode(selectedNode === item.id ? null : item.id)}
+                        stroke={isSelected ? '#ffffff' : 'none'}
+                        strokeWidth={isSelected ? '3' : '0'}
+                        opacity={selectedNode ? (isSelected || isConnected ? 1 : 0.3) : 1}
+                      />
+                      <text
+                        x={labelX}
+                        y={labelY}
+                        textAnchor={labelAnchor}
+                        className="text-xs font-bold"
+                        fill="#e5e7eb"
+                        opacity={selectedNode ? (isSelected || isConnected ? 1 : 0.3) : 1}
+                      >
+                        {item.label}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          };
+
+          const renderConnections = () => {
+            const allItems = { S: stakeholders, N: needs, A: alterables, C: constraints };
+            
+            const alterableColors = {
+              'A1': '#fef3c7',
+              'A2': '#fde68a',
+              'A3': '#fcd34d',
+              'A4': '#fbbf24',
+              'A5': '#f59e0b',
+              'A6': '#f97316',
+              'A7': '#ea580c',
+              'A8': '#dc2626',
+              'A9': '#b91c1c',
+              'A10': '#ff0040'
+            };
+            
+            const constraintColors = {
+              'C10': '#ff1493',
+              'C9': '#ff69b4',
+              'C8': '#ff85c1',
+              'C7': '#ffa0d0',
+              'C6': '#d8a0e8',
+              'C5': '#c090e0',
+              'C4': '#a880d8',
+              'C3': '#9070d0',
+              'C2': '#7860c8',
+              'C1': '#8b5cf6'
+            };
+            
+            return connections.map((conn, idx) => {
+              const fromCategory = conn.from[0];
+              const toCategory = conn.to[0];
+              
+              const fromItems = allItems[fromCategory];
+              const toItems = allItems[toCategory];
+              
+              const fromIdx = fromItems.findIndex(item => item.id === conn.from);
+              const toIdx = toItems.findIndex(item => item.id === conn.to);
+              
+              if (fromIdx === -1 || toIdx === -1) return null;
+              
+              const fromPos = getItemPosition(fromItems, categoryPositions[fromCategory].angle, fromIdx, fromCategory);
+              const toPos = getItemPosition(toItems, categoryPositions[toCategory].angle, toIdx, toCategory);
+              
+              const isHovered = hoveredConnection === ${conn.from}-${conn.to};
+              const isConnectedToSelected = selectedNode && (conn.from === selectedNode || conn.to === selectedNode);
+              
+              let color = categoryPositions[fromCategory].color;
+              
+              if (conn.type === 'N-A') {
+                color = alterableColors[conn.to] || color;
+              }
+              
+              if (conn.type === 'A-C') {
+                color = constraintColors[conn.to] || color;
+              }
+              
+              return (
+                <line
+                  key={idx}
+                  x1={fromPos.x}
+                  y1={fromPos.y}
+                  x2={toPos.x}
+                  y2={toPos.y}
+                  stroke={color}
+                  strokeWidth={isHovered || isConnectedToSelected ? "3.5" : "2.5"}
+                  strokeOpacity={selectedNode ? (isConnectedToSelected ? "1" : "0.2") : (isHovered ? "1" : "0.7")}
+                  onMouseEnter={() => setHoveredConnection(${conn.from}-${conn.to})}
+                  onMouseLeave={() => setHoveredConnection(null)}
+                  className="cursor-pointer transition-all"
+                />
+              );
+            });
+          };
+
+          return (
+            <div className="w-full bg-black p-8 overflow-auto">
+              <h1 className="text-3xl font-bold text-center mb-2 text-white">
+                SNAC Discovery Matrix - Skill Gap Analyzer
+              </h1>
+              <p className="text-center text-gray-300 mb-8">
+                Circular/Radial Layout - Organized by Stakeholder Connections
+              </p>
+
+              <svg width="1400" height="900" className="mx-auto">
+                <circle
+                  cx={centerX}
+                  cy={centerY}
+                  r="80"
+                  fill="#1f2937"
+                  stroke="#6b7280"
+                  strokeWidth="2"
+                />
+                <text
+                  x={centerX}
+                  y={centerY - 10}
+                  textAnchor="middle"
+                  className="font-bold text-xl"
+                  fill="#e5e7eb"
+                >
+                  Skill Gap
+                </text>
+                <text
+                  x={centerX}
+                  y={centerY + 15}
+                  textAnchor="middle"
+                  className="font-bold text-xl"
+                  fill="#e5e7eb"
+                >
+                  Analyzer
+                </text>
+
+                {renderConnections()}
+
+                {renderCategory(stakeholders, 'S')}
+                {renderCategory(needs, 'N')}
+                {renderCategory(alterables, 'A')}
+                {renderCategory(constraints, 'C')}
+
+                <defs>
+                  <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#9ca3af" />
+                  </marker>
+                </defs>
+                
+                <path
+                  d={M ${centerX + 150} ${centerY - 80} Q ${centerX + 180} ${centerY - 60} ${centerX + 180} ${centerY - 20}}
+                  stroke="#9ca3af"
+                  strokeWidth="2"
+                  fill="none"
+                  markerEnd="url(#arrowhead)"
+                />
+                <path
+                  d={M ${centerX + 80} ${centerY + 150} Q ${centerX + 60} ${centerY + 180} ${centerX + 20} ${centerY + 180}}
+                  stroke="#9ca3af"
+                  strokeWidth="2"
+                  fill="none"
+                  markerEnd="url(#arrowhead)"
+                />
+                <path
+                  d={M ${centerX - 150} ${centerY + 80} Q ${centerX - 180} ${centerY + 60} ${centerX - 180} ${centerY + 20}}
+                  stroke="#9ca3af"
+                  strokeWidth="2"
+                  fill="none"
+                  markerEnd="url(#arrowhead)"
+                />
+                <path
+                  d={M ${centerX - 80} ${centerY - 150} Q ${centerX - 60} ${centerY - 180} ${centerX - 20} ${centerY - 180}}
+                  stroke="#9ca3af"
+                  strokeWidth="2"
+                  fill="none"
+                  markerEnd="url(#arrowhead)"
+                />
+              </svg>
+
+              <div className="text-center text-sm text-gray-400 mt-8">
+                <p>Connections flow: Stakeholders → Needs → Alterables → Constraints</p>
+                <p className="mt-2">Needs nodes organized in reverse: S6 → S5 → S4 → S3 → S2 → S1 (bottom to top)</p>
+                <p className="mt-1">Hover over connection lines to highlight them | Click on any node to highlight all its connections</p>
+              </div>
+            </div>
+          );
+        };
+
+        ReactDOM.render(<SNACMatrix />, document.getElementById('root'));
+    </script>
+</body>
+</html>
