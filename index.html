@@ -314,7 +314,7 @@
                 line.dataset.to = conn.to;
                 
                 line.addEventListener('mouseenter', () => {
-                    hoveredConnection = ${conn.from}-${conn.to};
+                    hoveredConnection = `${conn.from}-${conn.to}`;
                     line.setAttribute('stroke-width', '3.5');
                     line.setAttribute('stroke-opacity', '1');
                 });
@@ -359,7 +359,7 @@
                 text2.setAttribute('fill', 'white');
                 text2.style.fontSize = '0.875rem';
                 text2.style.fontWeight = '600';
-                text2.textContent = (${category});
+                text2.textContent = `(${category})`;
                 svg.appendChild(text2);
             }
             
