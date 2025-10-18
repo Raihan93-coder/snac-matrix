@@ -378,7 +378,7 @@
               const fromPos = getItemPosition(fromItems, categoryPositions[fromCategory].angle, fromIdx, fromCategory);
               const toPos = getItemPosition(toItems, categoryPositions[toCategory].angle, toIdx, toCategory);
               
-              const isHovered = hoveredConnection === ${conn.from}-${conn.to};
+              const isHovered = hoveredConnection === `${conn.from}-${conn.to}`;
               const isConnectedToSelected = selectedNode && (conn.from === selectedNode || conn.to === selectedNode);
               
               let color = categoryPositions[fromCategory].color;
