@@ -885,13 +885,16 @@
             let row = [10, 20, 30, 40, 50, 65, 80];
             let col = [8, 25, 42, 58, 75];
 
+function initFeedbackView() {
+            let row = [10, 20, 30, 40, 50, 65, 80];
+            let col = [8, 25, 42, 58, 75];
+
             flowNodes = [
-                { id: 1, name: "Balanced Resources", x: col[3], y: row[3] },
                 { id: 2, name: "Better Data Input", x: col[4], y: row[0] },
-                { id: 3, name: "Better Performance", x: col[3], y: row[2] },
+                { id: 3, name: "Better Performance", x: col[2], y: row[2] },
                 { id: 4, name: "Better Recommendations", x: col[2], y: row[1] },
                 { id: 5, name: "Better Skills", x: col[0], y: row[2] },
-                { id: 6, name: "Fewer Resources", x: col[4], y: row[3] },
+                { id: 6, name: "Fewer Available Resources", x: col[4], y: row[3] },
                 { id: 7, name: "Higher Engagement", x: col[1], y: row[1] },
                 { id: 8, name: "Improved Accuracy", x: col[3], y: row[0] },
                 { id: 9, name: "Improved Analyzer", x: col[4], y: row[1] },
@@ -900,24 +903,22 @@
                 { id: 12, name: "Lesser Improvement", x: col[1], y: row[6] },
                 { id: 13, name: "Limited Training", x: col[4], y: row[4] },
                 { id: 14, name: "More Data", x: col[0], y: row[0] },
-                { id: 15, name: "More Investment", x: col[4], y: row[2] },
-                { id: 16, name: "More Learning", x: col[0], y: row[4] },
+                { id: 15, name: "Investment Demand", x: col[3], y: row[2] },
                 { id: 17, name: "More Learning Activity", x: col[1], y: row[3] },
                 { id: 18, name: "More Personalization", x: col[0], y: row[1] },
                 { id: 19, name: "Motivation", x: col[0], y: row[5] },
                 { id: 20, name: "Optimization", x: col[2], y: row[0] },
-                { id: 21, name: "Overall Skill Improvement", x: col[0], y: row[6] },
                 { id: 22, name: "Reduced Platform Activity", x: col[2], y: row[6] },
                 { id: 23, name: "Skill Gap Decrease", x: col[1], y: row[4] },
                 { id: 24, name: "Skill Improvement", x: col[0], y: row[3] },
                 { id: 25, name: "Slower Improvement", x: col[3], y: row[4] },
                 { id: 26, name: "Stable Skill Level", x: col[1], y: row[5] },
                 { id: 27, name: "Too Many Tasks", x: col[2], y: row[4] },
-                { id: 28, name: "User Fatigue", x: col[2], y: row[3] }
+                { id: 28, name: "User Fatigue", x: col[2], y: row[3] },
+                { id: 29, name: "Greater Resource Allocation", x: col[4], y: row[2]}
             ];
 
             flowConnections = [
-                { from: 1, to: 3, type: "negative" },
                 { from: 2, to: 4, type: "positive" },
                 { from: 3, to: 15, type: "positive" },
                 { from: 5, to: 3, type: "positive" },
@@ -929,29 +930,29 @@
                 { from: 10, to: 20, type: "positive" },
                 { from: 11, to: 22, type: "positive" },
                 { from: 12, to: 26, type: "positive" },
-                { from: 13, to: 6, type: "positive" },
-                { from: 13, to: 25, type: "positive" },
                 { from: 14, to: 10, type: "positive" },
                 { from: 14, to: 18, type: "positive" },
-                { from: 15, to: 6, type: "positive" },
-                { from: 15, to: 9, type: "positive" },
-                { from: 16, to: 24, type: "positive" },
-                { from: 17, to: 21, type: "positive" },
+                { from: 17, to: 24, type: "positive" },
                 { from: 17, to: 27, type: "positive" },
                 { from: 18, to: 7, type: "positive" },
-                { from: 19, to: 16, type: "positive" },
                 { from: 20, to: 8, type: "positive" },
-                { from: 21, to: 19, type: "positive" },
                 { from: 22, to: 12, type: "positive" },
                 { from: 23, to: 11, type: "positive" },
                 { from: 24, to: 5, type: "positive" },
                 { from: 24, to: 23, type: "positive" },
-                { from: 25, to: 1, type: "positive" },
                 { from: 26, to: 19, type: "negative" },
                 { from: 27, to: 28, type: "positive" },
                 { from: 28, to: 7, type: "negative" },
                 { from: 4, to: 7, type: "positive" },
-                { from: 7, to: 14, type: "positive" }
+                { from: 7, to: 14, type: "positive" },
+                { from: 15, to: 29, type: "positive" },
+                {from: 29, to: 9, type: "positive" },
+                {from: 29, to: 6, type: "negative" },
+                {from: 6, to: 13, type: "negative" },
+                {from: 13, to: 25, type: "negative" },
+                {from: 25, to: 15, type: "negative" },
+                {from: 24, to: 19, type: "positive" },
+                {from: 19, to: 17, type: "positive"}
             ];
 
             originalNodes = JSON.parse(JSON.stringify(flowNodes));
